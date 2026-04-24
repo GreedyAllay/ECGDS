@@ -3,6 +3,7 @@ const server = {
 }
 
 const WebSocket = require("ws")
+const fs = require("fs")
 
 let players = {
 
@@ -12,7 +13,7 @@ console.log("starting dedicated server...")
 server.websocket = new WebSocket.Server({port: server.port})
 
 
-server.websocket.on('connection', (ws) => {
+server.websocket.on('connection', async(ws) => {
   console.log('wow someone joined');
 
   //console.log(server.websocket.clients())
@@ -28,7 +29,11 @@ server.websocket.on('connection', (ws) => {
       switch(type) {
         case "join":
           //send global server message to everyone that some dumbass decided to become part of this place
-          players
+          sendGlobalChat(`${username} joined`)
+          const level = fs.readFileSync("defineLevel0.js", "utf-8")
+          console.log(level)
+          const tx = {type: "level", data: level}
+          ws.send(JSON.stringify(tx))
         break;
         case "update":
           //yes i love allowing anyone to change anyone's positions thats a very nice thing to do and extremely secure
