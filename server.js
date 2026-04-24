@@ -31,6 +31,7 @@ server.websocket.on('connection', (ws) => {
           players
         break;
         case "update":
+          //yes i love allowing anyone to change anyone's positions thats a very nice thing to do and extremely secure
           if(!players[username]) {
             players[username] = {x: 0, y: 0}
           }
@@ -38,6 +39,10 @@ server.websocket.on('connection', (ws) => {
           players[username].y = player.y
           players[username].xv = player.xv
           players[username].yv = player.yv
+          players[username].w = player.w
+          players[username].h = player.h
+          players[username].ox = player.ox
+          players[username].oy = player.oy
           players[username].mirror = player.mirror
           players[username].texture = player.texture
 
@@ -73,9 +78,7 @@ server.websocket.on('connection', (ws) => {
   }
 
   ws.on('close', () => {
-    console.log('player disconnected');
     players = {}
     sendGlobalChat('gary disconnected.')
-    console.log(server.clients)
   });
 });
