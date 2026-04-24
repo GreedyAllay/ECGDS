@@ -43,6 +43,7 @@ server.websocket.on('connection', (ws) => {
           players[username].h = player.h
           players[username].ox = player.ox
           players[username].oy = player.oy
+          players[username].sneaking = player.sneaking
           players[username].mirror = player.mirror
           players[username].texture = player.texture
 
