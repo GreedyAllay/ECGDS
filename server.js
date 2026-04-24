@@ -1,5 +1,7 @@
 const server = {
-    port: 6969
+    port: 6969,
+    motd: "an evil cat server.",
+    name: "ecg dedicated server"
 }
 
 const WebSocket = require("ws")
@@ -27,7 +29,7 @@ server.websocket.on('connection', async(ws) => {
 
     try {
       switch(type) {
-        case "join":
+        case "join":{
           const pl = Object.keys(players)
           if(pl.includes(username)) {
             sendPrivate(`"${username}" is already taken, sorry!`)
@@ -39,7 +41,7 @@ server.websocket.on('connection', async(ws) => {
           const level = fs.readFileSync("defineLevel0.js", "utf-8")
           const tx = {type: "level", data: level}
           ws.send(JSON.stringify(tx))
-        break;
+        break;}
         case "update":
           //yes i love allowing anyone to change anyone's positions thats a very nice thing to do and extremely secure
           if(!players[username]) {
@@ -64,6 +66,10 @@ server.websocket.on('connection', async(ws) => {
         break;
         case "chat": 
           sendGlobalChat(rx.message)
+        break;
+        case "query":{
+          const tx = {type: "query", motd: server.motd, name: server.name}
+          ws.send(JSON.stringify(tx))}
         break;
       }
     } catch (error) {
