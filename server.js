@@ -28,10 +28,15 @@ server.websocket.on('connection', async(ws) => {
     try {
       switch(type) {
         case "join":
+          const pl = Object.keys(players)
+          if(pl.includes(username)) {
+            sendPrivate(`"${username}" is already taken, sorry!`)
+            //ws.close()
+            return
+          }
           //send global server message to everyone that some dumbass decided to become part of this place
           sendGlobalChat(`${username} joined`)
           const level = fs.readFileSync("defineLevel0.js", "utf-8")
-          console.log(level)
           const tx = {type: "level", data: level}
           ws.send(JSON.stringify(tx))
         break;
@@ -81,6 +86,12 @@ server.websocket.on('connection', async(ws) => {
       if(!client.readyState === WebSocket.OPEN) {return}
       client.send(data)
     });
+  }
+
+  function sendPrivate(msg) {
+    const tx = {type: "msg", msg: msg}
+    console.log(`[DIRECT] ${msg}`)
+    ws.send(JSON.stringify(tx))
   }
 
   ws.on('close', () => {
