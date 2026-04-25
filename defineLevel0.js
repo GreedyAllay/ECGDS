@@ -1,7 +1,7 @@
 const defineLevel = () => {
     const skipIntro = false
 
-    world.useReflections = false
+    world.useReflections = true
 
     player.allowFly = true
 
@@ -86,7 +86,6 @@ const defineLevel = () => {
     define.text(-100, -25, 20, 'an official ecg server', 'Archivo', '#e7e7e7')
 
 
-    player.allowFly = false
     set.water(0)
 
     if(!skipIntro) {

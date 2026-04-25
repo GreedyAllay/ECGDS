@@ -1,7 +1,7 @@
 const server = {
     port: 6969,
-    motd: "an evil cat server.",
-    name: "ecg dedicated server"
+    name: "evil cat server",
+    motd: "an evil cat server."
 }
 
 const WebSocket = require("ws")
