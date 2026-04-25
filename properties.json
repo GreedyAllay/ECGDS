@@ -1,0 +1,6 @@
+{
+    "port": 6969,
+    "name": "evil cat server",
+    "motd": "a vanilla evil cat server.",
+    "maxPlayers": 8
+}
