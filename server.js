@@ -30,8 +30,7 @@ server.websocket.on('connection', async(ws) => {
     try {
       switch(type) {
         case "join":{
-          const pl = Object.keys(players)
-          if(pl.includes(username)) {
+          if(players[username] != null) {
             sendPrivate(`"${username}" is already taken, sorry!`)
             //ws.close()
             return
