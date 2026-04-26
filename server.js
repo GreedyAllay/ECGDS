@@ -1,15 +1,26 @@
-const server = {
+let server = {
     port: 6969,
-    name: "evil cat server",
-    motd: "an evil cat server."
+    name: "missing server config",
+    motd: "no server config found!",
+    maxPlayers: 0
 }
 
 const WebSocket = require("ws")
 const fs = require("fs")
 
-let players = {
+let loadedConfig
 
+try {
+  loadedConfig = fs.readFileSync("properties.json", "utf-8")
+} catch (error) {
+  console.log("theres properties.json, will use built-in configuration i guess")
 }
+
+server = loadedConfig ? JSON.parse(loadedConfig) : server
+
+console.log("using config: \n", server)
+
+let players = {}
 
 console.log("starting dedicated server...")
 server.websocket = new WebSocket.Server({port: server.port})
@@ -47,28 +58,25 @@ server.websocket.on('connection', async(ws) => {
           if(!players[username]) {
             players[username] = {x: 0, y: 0}
           }
-          players[username].x = player.x
-          players[username].y = player.y
-          players[username].xv = player.xv
-          players[username].yv = player.yv
-          players[username].w = player.w
-          players[username].h = player.h
-          players[username].ox = player.ox
-          players[username].oy = player.oy
-          players[username].sneaking = player.sneaking
-          players[username].mirror = player.mirror
-          players[username].texture = player.texture
 
+          //wowie so nice i hope it works
+          //edit: it didnt work
+          const copy = [ "x", "y", "xv", "yv", "w", "h", "ox", "oy", "sneaking", "mirror", "texture" ]
+
+          copy.forEach(property => { players[username][property] = player[property] })
+
+
+          
           if(players) {
             const tx = {type: "update", players: players}
-            ws.send(JSON.stringify(tx))
+            ws.send(JSON.stringify(tx)) //give da data to da ppl
           }
         break;
         case "chat": 
           sendGlobalChat(rx.message)
         break;
         case "query":{
-          const tx = {type: "query", motd: server.motd, name: server.name}
+          const tx = {type: "query", motd: server.motd, name: server.name, count: Object.keys(players).length, max: server.maxPlayers}
           ws.send(JSON.stringify(tx))}
         break;
       }
