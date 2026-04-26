@@ -1,29 +1,15 @@
-//fallback shit
-let server = {
+const server = {
     port: 6969,
     name: "evil cat server",
-    motd: "a vanilla evil cat server.",
-    maxPlayers: 8
+    motd: "an evil cat server."
 }
-
 
 const WebSocket = require("ws")
 const fs = require("fs")
 
-let loadedConfig
+let players = {
 
-try {
-  loadedConfig = fs.readFileSync("properties.json", "utf-8")
-} catch (error) {
-  console.log("theres properties.json, will use built-in configuration i guess")
 }
-
-server = loadedConfig ? JSON.parse(loadedConfig) : server
-
-console.log("using config: \n", server)
-
-let players = {}
-
 
 console.log("starting dedicated server...")
 server.websocket = new WebSocket.Server({port: server.port})
@@ -44,37 +30,35 @@ server.websocket.on('connection', async(ws) => {
     try {
       switch(type) {
         case "join":{
-          if(Object.hasOwn(players, username) && false) {
+          const pl = Object.keys(players)
+          if(pl.includes(username)) {
             sendPrivate(`"${username}" is already taken, sorry!`)
-            ws.close()
-            return
-          }
-          if(playerCount() >= server.maxPlayers && false) {
-            sendPrivate(`you can't join, this server is full!`)
-            ws.close()
+            //ws.close()
             return
           }
           //send global server message to everyone that some dumbass decided to become part of this place
           sendGlobalChat(`${username} joined`)
           const level = fs.readFileSync("defineLevel0.js", "utf-8")
           const tx = {type: "level", data: level}
-          players[username] = {}
           ws.send(JSON.stringify(tx))
         break;}
         case "update":
           //yes i love allowing anyone to change anyone's positions thats a very nice thing to do and extremely secure
           if(!players[username]) {
-            sendPrivate(`invalid player data`)
-            ws.close()
-            return;
+            players[username] = {x: 0, y: 0}
           }
-          //wowie so nice i hope it works
-          //edit: it didnt work
-          const copy = [ "x", "y", "xv", "yv", "w", "h", "ox", "oy", "sneaking", "mirror", "texture" ]
+          players[username].x = player.x
+          players[username].y = player.y
+          players[username].xv = player.xv
+          players[username].yv = player.yv
+          players[username].w = player.w
+          players[username].h = player.h
+          players[username].ox = player.ox
+          players[username].oy = player.oy
+          players[username].sneaking = player.sneaking
+          players[username].mirror = player.mirror
+          players[username].texture = player.texture
 
-          copy.forEach(property => { players[username][property] = player[property] })
-
-          //bye bye see you lader data
           if(players) {
             const tx = {type: "update", players: players}
             ws.send(JSON.stringify(tx))
@@ -84,7 +68,7 @@ server.websocket.on('connection', async(ws) => {
           sendGlobalChat(rx.message)
         break;
         case "query":{
-          const tx = {type: "query", motd: server.motd, name: server.name, count: Object.keys(players).length, max: server.maxPlayers}
+          const tx = {type: "query", motd: server.motd, name: server.name}
           ws.send(JSON.stringify(tx))}
         break;
       }
@@ -103,13 +87,9 @@ server.websocket.on('connection', async(ws) => {
     console.log(`[CHAT] ${message}`)
   }
 
-  function playerCount() {
-    return Object.keys(players).length
-  }
-
   function sendToAll(data) {
     server.websocket.clients.forEach(client => {
-      if(client.readyState !== WebSocket.OPEN) {return}
+      if(!client.readyState === WebSocket.OPEN) {return}
       client.send(data)
     });
   }
