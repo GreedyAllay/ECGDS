@@ -1,0 +1,7 @@
+- added multiplayer building support
+    - made placing blocks go through the server and back to each client
+    - stored all added blocks in a list to send players that join post
+    - fun
+- put the level inside of a folder
+- allowed config to change what level it uses
+- made it auto-generate a config file when one is missing

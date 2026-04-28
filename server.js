@@ -34,6 +34,8 @@ console.log("using config: \n", server)
 
 const levelData = fs.readFileSync(`level/${server.levelName}.js`, "utf-8")
 
+const modifiedLevel = []
+
 
 
 
@@ -71,8 +73,18 @@ server.websocket.on('connection', async(ws) => {
           }
           //send global server message to everyone that some dumbass decided to become part of this place
           sendGlobalChat(`${username} joined`)
-          const tx = {type: "level", data: level}
+          const tx = {type: "level", data: levelData}
           ws.send(JSON.stringify(tx))
+
+          //not sure HOW this is possible but it worked FIRST FRIGGEN TRY!!
+          //basically fgor the nerds of u out there it js goes thru ever object and sends their change manually
+          //YESSSS YES YES YESSS I KNOW!! it is FUCKING UGLY BUTTTTTT it works and it doesnt require more codey code
+          //no one will play this game anyway so its fine trust
+          modifiedLevel.forEach(object => {
+            const tx = {type: "edit", change: "add", object: {x: object.x, y: object.y, w: object.w, h: object.h}}
+            ws.send(JSON.stringify(tx))
+          })
+                
         break;}
         case "update":
           //yes i love allowing anyone to change anyone's positions thats a very nice thing to do and extremely secure
@@ -96,18 +108,23 @@ server.websocket.on('connection', async(ws) => {
           ws.send(JSON.stringify(tx))}
           break;
         case "edit": {
+          console.log("editorialness")
           const {change, data} = rx
             switch(change) {
               case "add":
-                const {x, y, w, h} = data
-                const tx = {type: "change", type: "add", data: [x, y, w, h]}
-                ws.send(JSON.stringify(tx))
+                console.log(data)
+                const {x, y, width, height} = data
+                modifiedLevel.push({x: x, y: y, w: width, h: height})
+                const tx = {type: "edit", change: "add", object: {x: x, y: y, w: width, h: height}}
+                sendToAll(JSON.stringify(tx))
         break;
               }
             }
           }
     } catch (error) {
-      ws.send(`serverError: ${error}`);
+      const tx = {type: "error", msg: error}
+      console.error(error)
+      ws.send(JSON.stringify(tx))
     }
 
     //console.log(`death threat received: ${message}`);

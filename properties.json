@@ -1,9 +1,8 @@
-
 {
   "port": 6969,
-  "name": "missing server config",
-  "motd": "no server config found!",
-  "maxPlayers": 0,
+  "name": "unnamed server",
+  "motd": "an evil cat server",
+  "maxPlayers": 8,
   "levelName": "defineLevel0"
 }
   
