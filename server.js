@@ -2,28 +2,50 @@ let server = {
     port: 6969,
     name: "missing server config",
     motd: "no server config found!",
-    maxPlayers: 0
+    maxPlayers: 0,
+    levelName: "defineLevel0"
 }
 
 const WebSocket = require("ws")
 const fs = require("fs")
+
 
 let loadedConfig
 
 try {
   loadedConfig = fs.readFileSync("properties.json", "utf-8")
 } catch (error) {
-  console.log("theres properties.json, will use built-in configuration i guess")
+  console.log("theres no properties.json, guess i will create a new one then, dont delete it next time!")
+  fs.writeFileSync("properties.json", `
+{
+  "port": 6969,
+  "name": "missing server config",
+  "motd": "no server config found!",
+  "maxPlayers": 0,
+  "levelName": "defineLevel0"
+}
+  `)
+  loadedConfig = fs.readFileSync("properties.json", "utf-8")
 }
 
 server = loadedConfig ? JSON.parse(loadedConfig) : server
 
 console.log("using config: \n", server)
 
+const levelData = fs.readFileSync(`level/${server.levelName}.js`, "utf-8")
+
+
+
+
 let players = {}
 
 console.log("starting dedicated server...")
-server.websocket = new WebSocket.Server({port: server.port})
+try {
+  server.websocket = new WebSocket.Server({port: server.port})
+  console.log("done.")
+} catch (error) {
+  console.log("error opening socket: " + error)
+} 
 
 
 server.websocket.on('connection', async(ws) => {
@@ -49,7 +71,6 @@ server.websocket.on('connection', async(ws) => {
           }
           //send global server message to everyone that some dumbass decided to become part of this place
           sendGlobalChat(`${username} joined`)
-          const level = fs.readFileSync("defineLevel0.js", "utf-8")
           const tx = {type: "level", data: level}
           ws.send(JSON.stringify(tx))
         break;}
@@ -58,15 +79,10 @@ server.websocket.on('connection', async(ws) => {
           if(!players[username]) {
             players[username] = {x: 0, y: 0}
           }
-
           //wowie so nice i hope it works
           //edit: it didnt work
           const copy = [ "x", "y", "xv", "yv", "w", "h", "ox", "oy", "sneaking", "mirror", "texture" ]
-
           copy.forEach(property => { players[username][property] = player[property] })
-
-
-          
           if(players) {
             const tx = {type: "update", players: players}
             ws.send(JSON.stringify(tx)) //give da data to da ppl
@@ -78,8 +94,18 @@ server.websocket.on('connection', async(ws) => {
         case "query":{
           const tx = {type: "query", motd: server.motd, name: server.name, count: Object.keys(players).length, max: server.maxPlayers}
           ws.send(JSON.stringify(tx))}
+          break;
+        case "edit": {
+          const {change, data} = rx
+            switch(change) {
+              case "add":
+                const {x, y, w, h} = data
+                const tx = {type: "change", type: "add", data: [x, y, w, h]}
+                ws.send(JSON.stringify(tx))
         break;
-      }
+              }
+            }
+          }
     } catch (error) {
       ws.send(`serverError: ${error}`);
     }
