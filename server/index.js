@@ -1,10 +1,4 @@
-let server = {
-    port: 6969,
-    name: "missing server config",
-    motd: "no server config found!",
-    maxPlayers: 0,
-    levelName: "defineLevel0"
-}
+let server = 
 
 const WebSocket = require("ws")
 const fs = require("fs")
