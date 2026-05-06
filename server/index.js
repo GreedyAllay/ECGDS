@@ -1,26 +1,6 @@
-let server = 
-
 const WebSocket = require("ws")
 const fs = require("fs")
 
-
-let loadedConfig
-
-try {
-  loadedConfig = fs.readFileSync("properties.json", "utf-8")
-} catch (error) {
-  console.log("theres no properties.json, guess i will create a new one then, dont delete it next time!")
-  fs.writeFileSync("properties.json", `
-{
-  "port": 6969,
-  "name": "missing server config",
-  "motd": "no server config found!",
-  "maxPlayers": 0,
-  "levelName": "defineLevel0"
-}
-  `)
-  loadedConfig = fs.readFileSync("properties.json", "utf-8")
-}
 
 server = loadedConfig ? JSON.parse(loadedConfig) : server
 
