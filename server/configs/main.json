@@ -1,8 +1,7 @@
 {
-  "port": 6969,
-  "name": "unnamed server",
-  "motd": "an evil cat server",
-  "maxPlayers": 8,
-  "levelName": "defineLevel0"
+    "port": 6969,
+    "name": "unnamed server",
+    "motd": "an evil cat server",
+    "maxPlayers": 8,
+    "levelName": "defineLevel0"
 }
-  
